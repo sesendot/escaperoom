@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dedektif Dosyası #7 — Kayıp Venüs</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --paper: #f5ead8;
+    --aged: #e8d5b0;
+    --crease: #c9b48a;
+    --amber: #d4860a;
+    --red: #8b1a1a;
+    --green: #1a5c2a;
+    --shadow: rgba(20,12,0,0.35);
+    --stamp: #7a2020;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1a1208;
+    font-family: 'Courier Prime', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(100,80,40,0.08) 50px),
+      repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(100,80,40,0.04) 50px);
+  }
+
+  .case-folder {
+    width: 100%;
+    max-width: 820px;
+    position: relative;
+  }
+
+  /* ─── TOP BAR ─── */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--ink);
+    border: 2px solid var(--amber);
+    padding: 10px 20px;
+    margin-bottom: 4px;
+    border-radius: 3px 3px 0 0;
+  }
+
+  .top-bar h1 {
+    font-family: 'Special Elite', cursive;
+    color: var(--amber);
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .timer-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .timer-label {
+    color: var(--crease);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+  }
+
+  #timer {
+    font-family: 'Courier Prime', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #e8c060;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  #timer.warning { color: var(--red); animation: blink 0.8s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0.4; } }
+
+  .timer-controls { display: flex; gap: 6px; }
+
+  .btn-sm {
+    background: transparent;
+    border: 1px solid var(--amber);
+    color: var(--amber);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+  .btn-sm:hover { background: var(--amber); color: var(--ink); }
+
+  /* ─── MAIN PAPER ─── */
+  .paper {
+    background: var(--paper);
+    border: 2px solid var(--crease);
+    padding: 36px 44px;
+    position: relative;
+    box-shadow: 6px 6px 20px var(--shadow), inset 0 0 60px rgba(180,140,60,0.08);
+    border-radius: 0 0 3px 3px;
+  }
+
+  .paper::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 100%;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 27px,
+      rgba(180,140,60,0.15) 28px
+    );
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  .stamp {
+    position: absolute;
+    top: 28px; right: 36px;
+    border: 3px solid var(--stamp);
+    color: var(--stamp);
+    font-family: 'Special Elite', cursive;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    padding: 6px 10px;
+    transform: rotate(8deg);
+    text-transform: uppercase;
+    opacity: 0.7;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .case-header {
+    text-align: center;
+    margin-bottom: 28px;
+    border-bottom: 2px solid var(--crease);
+    padding-bottom: 20px;
+    position: relative;
+  }
+
+  .case-number {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.75rem;
+    letter-spacing: 5px;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .case-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+
+  .case-subtitle {
+    font-size: 0.8rem;
+    color: #7a6540;
+    letter-spacing: 2px;
+    margin-top: 6px;
+  }
+
+  /* ─── SECTIONS ─── */
+  .section { margin-bottom: 24px; }
+
+  .section-label {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--amber);
+    border-bottom: 1px solid var(--crease);
+    padding-bottom: 4px;
+    margin-bottom: 14px;
+  }
+
+  .story-text {
+    font-size: 0.92rem;
+    color: #2a1e08;
+    line-height: 1.85;
+  }
+
+  .note-box {
+    background: #fff9e6;
+    border-left: 4px solid var(--amber);
+    padding: 12px 16px;
+    font-family: 'Special Elite', cursive;
+    font-size: 0.88rem;
+    color: var(--ink);
+    margin: 14px 0;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    line-height: 1.6;
+  }
+
+  /* ─── SUSPECTS ─── */
+  .suspects-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .suspect-card {
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--crease);
+    padding: 12px 14px;
+    position: relative;
+    transition: box-shadow 0.2s;
+  }
+
+  .suspect-card::before {
+    content: attr(data-initial);
+    position: absolute;
+    top: 8px; right: 10px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-style: italic;
+    color: var(--crease);
+    line-height: 1;
+  }
+
+  .suspect-name {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.9rem;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .suspect-detail {
+    font-size: 0.78rem;
+    color: #5a4520;
+    line-height: 1.6;
+  }
+
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .dot-red { background: var(--red); }
+  .dot-blue { background: #1a3a8b; }
+  .dot-yellow { background: var(--amber); }
+  .dot-green { background: var(--green); }
+
+  /* ─── CIPHER ─── */
+  .cipher-box {
+    background: #1a1208;
+    color: #d4c090;
+    border: 2px solid var(--amber);
+    padding: 20px 24px;
+    font-size: 0.85rem;
+    line-height: 1.9;
+    position: relative;
+  }
+
+  .cipher-box::before {
+    content: '⚿ ŞİFRELİ MESAJ';
+    position: absolute;
+    top: -11px; left: 16px;
+    background: var(--amber);
+    color: var(--ink);
+    font-family: 'Special Elite', cursive;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    padding: 2px 8px;
+  }
+
+  .cipher-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+  }
+
+  .cipher-num {
+    background: var(--amber);
+    color: var(--ink);
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    margin-top: 2px;
+  }
+
+  /* ─── ANSWER SECTION ─── */
+  .answer-section {
+    background: rgba(255,255,255,0.4);
+    border: 2px dashed var(--crease);
+    padding: 24px;
+    margin-top: 28px;
+  }
+
+  .answer-section-title {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.8rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 18px;
+    text-align: center;
+  }
+
+  .answer-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .answer-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .answer-row label {
+    font-size: 0.8rem;
+    color: #5a4520;
+    letter-spacing: 1px;
+    width: 120px;
+    flex-shrink: 0;
+  }
+
+  .cipher-input-wrap {
+    display: flex;
+    gap: 8px;
+  }
+
+  .digit-input {
+    width: 46px;
+    height: 46px;
+    border: 2px solid var(--crease);
+    background: #fff9e6;
+    font-family: 'Courier Prime', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .digit-input:focus { border-color: var(--amber); background: #fffdf0; }
+  .digit-input.correct { border-color: var(--green); background: #e8f5ec; color: var(--green); }
+  .digit-input.wrong { border-color: var(--red); background: #fdf0f0; color: var(--red); }
+
+  .suspect-select {
+    flex: 1;
+    border: 2px solid var(--crease);
+    background: #fff9e6;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.9rem;
+    color: var(--ink);
+    padding: 8px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+
+  .suspect-select:focus { border-color: var(--amber); }
+  .suspect-select.correct { border-color: var(--green); background: #e8f5ec; }
+  .suspect-select.wrong { border-color: var(--red); background: #fdf0f0; }
+
+  /* ─── SUBMIT BUTTON ─── */
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--ink);
+    color: var(--amber);
+    border: 2px solid var(--amber);
+    font-family: 'Special Elite', cursive;
+    font-size: 1rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-submit:hover {
+    background: var(--amber);
+    color: var(--ink);
+  }
+
+  .btn-submit:active { transform: scale(0.99); }
+
+  /* ─── FEEDBACK ─── */
+  .feedback {
+    margin-top: 16px;
+    padding: 16px 20px;
+    font-family: 'Special Elite', cursive;
+    font-size: 0.95rem;
+    text-align: center;
+    letter-spacing: 1px;
+    display: none;
+    line-height: 1.6;
+    border: 2px solid;
+  }
+
+  .feedback.success {
+    background: #e8f5ec;
+    border-color: var(--green);
+    color: var(--green);
+    display: block;
+  }
+
+  .feedback.partial {
+    background: #fff8e0;
+    border-color: var(--amber);
+    color: #7a4a00;
+    display: block;
+  }
+
+  .feedback.error {
+    background: #fdf0f0;
+    border-color: var(--red);
+    color: var(--red);
+    display: block;
+  }
+
+  /* ─── SCOREBOARD ─── */
+  .scoreboard {
+    margin-top: 20px;
+  }
+
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .score-card {
+    background: rgba(255,255,255,0.4);
+    border: 1px solid var(--crease);
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .score-card-label {
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    color: #7a6540;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .score-card-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  .score-card-value.highlight { color: var(--amber); }
+
+  /* ─── SOLUTION TOGGLE ─── */
+  .solution-wrap { margin-top: 16px; }
+
+  .btn-reveal {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 1px dashed var(--crease);
+    color: #9a8060;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-reveal:hover { border-color: var(--amber); color: var(--amber); }
+
+  .solution-panel {
+    display: none;
+    background: var(--ink);
+    color: #d4c090;
+    padding: 20px 24px;
+    margin-top: 2px;
+    font-size: 0.82rem;
+    line-height: 1.9;
+    border: 1px solid var(--amber);
+  }
+
+  .solution-panel.open { display: block; }
+
+  .solution-panel strong { color: var(--amber); }
+
+  .sol-step {
+    margin-bottom: 10px;
+    padding-left: 14px;
+    border-left: 2px solid var(--amber);
+  }
+
+  /* ─── ATTEMPTS BAR ─── */
+  .attempts-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
+  .attempts-label { font-size: 0.73rem; color: #7a6540; letter-spacing: 1px; }
+  .attempt-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 1.5px solid var(--crease);
+    background: transparent;
+    transition: background 0.3s;
+  }
+  .attempt-dot.used { background: var(--red); border-color: var(--red); }
+
+  @media (max-width: 600px) {
+    .paper { padding: 24px 20px; }
+    .suspects-grid { grid-template-columns: 1fr; }
+    .score-grid { grid-template-columns: 1fr 1fr; }
+    .case-title { font-size: 1.6rem; }
+    .top-bar h1 { font-size: 0.85rem; letter-spacing: 2px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="case-folder">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <h1>🔍 Dedektif Dosyası #7</h1>
+    <div class="timer-box">
+      <span class="timer-label">SÜRE</span>
+      <span id="timer">20:00</span>
+      <div class="timer-controls">
+        <button class="btn-sm" id="btnStart">▶ Başlat</button>
+        <button class="btn-sm" id="btnReset">↺ Sıfırla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAPER -->
+  <div class="paper">
+    <div class="stamp">GİZLİ<br>DOSYA<br>#007</div>
+
+    <div class="case-header">
+      <div class="case-number">İstanbul Modern Sanat Müzesi — Vaka No: 2024-07</div>
+      <div class="case-title">Kayıp Venüs</div>
+      <div class="case-subtitle">⚡ Orta-Üst Zorluk &nbsp;·&nbsp; Sayısal Muhakeme &nbsp;·&nbsp; Şifre Kırma</div>
+    </div>
+
+    <!-- STORY -->
+    <div class="section">
+      <div class="section-label">📍 Olay Yeri</div>
+      <div class="story-text">
+        İstanbul Modern Sanat Müzesi'nin güvenlik sistemi bu gece tam <strong>4 dakika 33 saniye</strong> devre dışı kaldı — saat <strong>02:17'de</strong>.
+        <br><br>
+        Sabah 07:00'de müzeye gelen bekçi Hamit Bey, 3. kattaki Rönesans Salonu'nda dehşete düştü: Botticelli'nin <em>"Venüs'ün Doğuşu"</em> replikası — değeri 2,3 milyon dolar — ortadan kaybolmuştu. Tablonun yerine çerçeveye yapıştırılmış sarı bir not kağıdı vardı:
+      </div>
+      <div class="note-box">
+        "Sayıları bilen bilir. Bilmeyen arar."
+      </div>
+    </div>
+
+    <!-- SUSPECTS -->
+    <div class="section">
+      <div class="section-label">🕵️ Şüpheliler</div>
+      <div class="suspects-grid">
+        <div class="suspect-card" data-initial="S">
+          <div class="suspect-name"><span class="dot dot-red"></span>Restoratör Sinan (48)</div>
+          <div class="suspect-detail">
+            Tablonun son bakımını yapan kişi.<br>
+            🔑 Müze anahtarı üzerinde.<br>
+            ⏰ Giriş: <strong>23:00</strong> — Çıkış: <strong>03:15</strong>
+          </div>
+        </div>
+        <div class="suspect-card" data-initial="E">
+          <div class="suspect-name"><span class="dot dot-blue"></span>Stajyer Elif (22)</div>
+          <div class="suspect-detail">
+            Sanat tarihi öğrencisi. Gece nöbetindeydi.<br>
+            📋 Nöbet defterinde imzası var.<br>
+            ⏰ Giriş: <strong>22:30</strong> — Çıkış: <strong>02:00</strong>
+          </div>
+        </div>
+        <div class="suspect-card" data-initial="T">
+          <div class="suspect-name"><span class="dot dot-yellow"></span>Güvenlik Görevlisi Tarık (35)</div>
+          <div class="suspect-detail">
+            Sistemi neden kapattığını "bilmiyorum" diyor.<br>
+            🖥️ Sistem yönetici yetkisi var.<br>
+            ⏰ Giriş: <strong>21:45</strong> — Çıkış: <strong>06:50</strong>
+          </div>
+        </div>
+        <div class="suspect-card" data-initial="H">
+          <div class="suspect-name"><span class="dot dot-green"></span>Müze Müdürü Handan (54)</div>
+          <div class="suspect-detail">
+            "Ben sabah 06:30'da geldim" diyor.<br>
+            ⚠️ Ama log farklı söylüyor:<br>
+            ⏰ Giriş: <strong>01:50</strong> — Çıkış: <strong>04:40</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CIPHER -->
+    <div class="section">
+      <div class="section-label">🔐 Şifreli Not</div>
+      <div class="cipher-box">
+        <em>Çerçevenin arkasında ikinci bir not bulundu:</em>
+        <br><br>
+        <div class="cipher-item">
+          <div class="cipher-num">1</div>
+          <div><strong style="color:#d4c090">1. Hane:</strong> Müzede en uzun süre geçiren şüphelinin süresini (saat, tam sayıya yuvarla), toplam şüpheli sayısına böl.</div>
+        </div>
+        <div class="cipher-item">
+          <div class="cipher-num">2</div>
+          <div><strong style="color:#d4c090">2. Hane:</strong> Güvenlik sisteminin kapalı kaldığı süreyi <em>saniyeye</em> çevir → rakamları topla → toplamın rakamlarını tekrar topla (tek hane olana kadar).</div>
+        </div>
+        <div class="cipher-item">
+          <div class="cipher-num">3</div>
+          <div><strong style="color:#d4c090">3. Hane:</strong> Tüm şüphelilerin müzede geçirdiği sürelerin (dakika) ortalamasını bul. Yüzler basamağı.</div>
+        </div>
+        <div class="cipher-item">
+          <div class="cipher-num">4</div>
+          <div><strong style="color:#d4c090">4. Hane:</strong> Şüphelileri giriş saatine göre sırala. Ortadaki iki kişinin giriş saatleri arasındaki fark (dakika). Onlar basamağı.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANSWER SECTION -->
+    <div class="answer-section">
+      <div class="answer-section-title">📝 Cevap Formu</div>
+
+      <div class="answer-group">
+        <div class="answer-row">
+          <label>Kasanın Şifresi:</label>
+          <div class="cipher-input-wrap">
+            <input type="number" class="digit-input" id="d1" min="0" max="9" placeholder="?" maxlength="1">
+            <input type="number" class="digit-input" id="d2" min="0" max="9" placeholder="?" maxlength="1">
+            <input type="number" class="digit-input" id="d3" min="0" max="9" placeholder="?" maxlength="1">
+            <input type="number" class="digit-input" id="d4" min="0" max="9" placeholder="?" maxlength="1">
+          </div>
+        </div>
+        <div class="answer-row">
+          <label>Suçlu:</label>
+          <select class="suspect-select" id="culprit">
+            <option value="">— Şüpheliyi seç —</option>
+            <option value="sinan">Restoratör Sinan</option>
+            <option value="elif">Stajyer Elif</option>
+            <option value="tarik">Güvenlik Görevlisi Tarık</option>
+            <option value="handan">Müze Müdürü Handan</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="attempts-row">
+        <span class="attempts-label">Kalan Hak:</span>
+        <div class="attempt-dot" id="a1"></div>
+        <div class="attempt-dot" id="a2"></div>
+        <div class="attempt-dot" id="a3"></div>
+      </div>
+
+      <button class="btn-submit" id="btnCheck">⚿ &nbsp; ÇÖZÜMÜ KONTROL ET</button>
+
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <!-- SCOREBOARD -->
+    <div class="scoreboard section" style="margin-top:24px;">
+      <div class="section-label">🏆 Skor Tablosu</div>
+      <div class="score-grid">
+        <div class="score-card">
+          <div class="score-card-label">Kalan Süre</div>
+          <div class="score-card-value highlight" id="scoreTime">—</div>
+        </div>
+        <div class="score-card">
+          <div class="score-card-label">Deneme</div>
+          <div class="score-card-value" id="scoreAttempts">0 / 3</div>
+        </div>
+        <div class="score-card">
+          <div class="score-card-label">Puan</div>
+          <div class="score-card-value highlight" id="scorePoints">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOLUTION -->
+    <div class="solution-wrap" id="solutionWrap" style="display:none;">
+      <button class="btn-reveal" id="btnReveal">▼ &nbsp; Çözümü Göster</button>
+      <div class="solution-panel" id="solutionPanel">
+        <strong>ÇÖZÜM ADIM ADIM</strong><br><br>
+        <div class="sol-step">
+          <strong>Şüpheli Süreleri (dakika):</strong><br>
+          • Sinan: 23:00 → 03:15 = <strong>255 dk</strong><br>
+          • Elif: 22:30 → 02:00 = <strong>210 dk</strong><br>
+          • Tarık: 21:45 → 06:50 = <strong>545 dk</strong><br>
+          • Handan: 01:50 → 04:40 = <strong>170 dk</strong>
+        </div>
+        <div class="sol-step">
+          <strong>1. Hane:</strong> En uzun süre → Tarık (545 dk ≈ 9 saat). 9 ÷ 4 = 2,25 → <strong>2</strong>
+        </div>
+        <div class="sol-step">
+          <strong>2. Hane:</strong> 4 dk 33 sn = 273 sn → 2+7+3 = 12 → 1+2 = <strong>3</strong>
+        </div>
+        <div class="sol-step">
+          <strong>3. Hane:</strong> Ort. = (255+210+545+170) ÷ 4 = 1180 ÷ 4 = 295 dk → yüzler: <strong>2</strong>
+        </div>
+        <div class="sol-step">
+          <strong>4. Hane:</strong> Giriş sırasına göre: Tarık(21:45) → Elif(22:30) → Sinan(23:00) → Handan(01:50). Ortadaki ikili: Elif & Sinan → fark = 30 dk → onlar: <strong>3</strong>
+        </div>
+        <div class="sol-step">
+          <strong>🔑 Şifre: 2323</strong>
+        </div>
+        <div class="sol-step">
+          <strong>🔍 Suçlu: Müze Müdürü Handan</strong><br>
+          Sistem 02:17'de kapandı. O anda müzede bulunanlar: Sinan ve Handan. Elif 02:00'de çıkmış. Ama Handan "sabah 06:30'da geldim" dedi — logu yalan söylüyor. Sistem şifresine erişimi olan tek yetkili müdür. İpucu: Notun müdüre özgü hat analizinden geliyor.
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /paper -->
+</div><!-- /case-folder -->
+
+<script>
+  // ── TIMER ──
+  let totalSeconds = 20 * 60;
+  let timerInterval = null;
+  let running = false;
+  let finalTime = null;
+
+  const timerEl = document.getElementById('timer');
+
+  function formatTime(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  }
+
+  function updateTimerDisplay() {
+    timerEl.textContent = formatTime(totalSeconds);
+    timerEl.classList.toggle('warning', totalSeconds <= 60);
+  }
+
+  document.getElementById('btnStart').addEventListener('click', () => {
+    if (running) {
+      clearInterval(timerInterval);
+      running = false;
+      document.getElementById('btnStart').textContent = '▶ Devam';
+    } else {
+      if (totalSeconds <= 0) return;
+      running = true;
+      document.getElementById('btnStart').textContent = '⏸ Duraklat';
+      timerInterval = setInterval(() => {
+        if (totalSeconds > 0) {
+          totalSeconds--;
+          updateTimerDisplay();
+          document.getElementById('scoreTime').textContent = formatTime(totalSeconds);
+        } else {
+          clearInterval(timerInterval);
+          running = false;
+          timerEl.textContent = '00:00';
+          document.getElementById('btnStart').textContent = '▶ Başlat';
+          showFeedback('⏰ Süre doldu! Aşağıda çözümü görebilirsin.', 'error');
+          document.getElementById('solutionWrap').style.display = 'block';
+        }
+      }, 1000);
+    }
+  });
+
+  document.getElementById('btnReset').addEventListener('click', () => {
+    clearInterval(timerInterval);
+    running = false;
+    totalSeconds = 20 * 60;
+    updateTimerDisplay();
+    document.getElementById('btnStart').textContent = '▶ Başlat';
+    attempts = 0;
+    points = 0;
+    solved = false;
+    updateScoreboard();
+    resetInputStyles();
+    document.getElementById('solutionWrap').style.display = 'none';
+    document.getElementById('solutionPanel').classList.remove('open');
+    document.getElementById('feedback').className = 'feedback';
+    document.getElementById('feedback').textContent = '';
+    ['d1','d2','d3','d4'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('culprit').value = '';
+    updateAttemptDots();
+  });
+
+  updateTimerDisplay();
+
+  // ── ANSWER CHECKING ──
+  const CORRECT_CIPHER = ['2','3','2','3'];
+  const CORRECT_CULPRIT = 'handan';
+  let attempts = 0;
+  const MAX_ATTEMPTS = 3;
+  let points = 0;
+  let solved = false;
+
+  function updateAttemptDots() {
+    for (let i = 1; i <= 3; i++) {
+      document.getElementById('a' + i).classList.toggle('used', i <= attempts);
+    }
+    document.getElementById('scoreAttempts').textContent = attempts + ' / ' + MAX_ATTEMPTS;
+  }
+
+  function showFeedback(msg, type) {
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback ' + type;
+    fb.innerHTML = msg;
+  }
+
+  function resetInputStyles() {
+    ['d1','d2','d3','d4'].forEach(id => {
+      document.getElementById(id).classList.remove('correct','wrong');
+    });
+    document.getElementById('culprit').classList.remove('correct','wrong');
+  }
+
+  function calcPoints() {
+    const timeBonus = Math.floor(totalSeconds / 10);
+    const attemptBonus = (MAX_ATTEMPTS - attempts + 1) * 20;
+    return Math.max(0, 100 + timeBonus + attemptBonus);
+  }
+
+  function updateScoreboard() {
+    document.getElementById('scoreAttempts').textContent = attempts + ' / ' + MAX_ATTEMPTS;
+    document.getElementById('scorePoints').textContent = points;
+  }
+
+  // digit input: auto-advance
+  ['d1','d2','d3','d4'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => {
+      const val = el.value;
+      if (val.length > 1) el.value = val.slice(-1);
+      if (el.value && i < 3) document.getElementById(['d1','d2','d3','d4'][i+1]).focus();
+    });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !el.value && i > 0) {
+        document.getElementById(['d1','d2','d3','d4'][i-1]).focus();
+      }
+    });
+  });
+
+  document.getElementById('btnCheck').addEventListener('click', () => {
+    if (solved || attempts >= MAX_ATTEMPTS) return;
+
+    const digits = ['d1','d2','d3','d4'].map(id => document.getElementById(id).value.trim());
+    const culprit = document.getElementById('culprit').value;
+
+    if (digits.some(d => d === '') || !culprit) {
+      showFeedback('⚠️ Lütfen tüm alanları doldur!', 'partial');
+      return;
+    }
+
+    attempts++;
+    updateAttemptDots();
+    resetInputStyles();
+
+    const cipherCorrect = digits.every((d, i) => d === CORRECT_CIPHER[i]);
+    const culpritCorrect = culprit === CORRECT_CULPRIT;
+
+    // visual feedback on digits
+    digits.forEach((d, i) => {
+      const el = document.getElementById(['d1','d2','d3','d4'][i]);
+      el.classList.add(d === CORRECT_CIPHER[i] ? 'correct' : 'wrong');
+    });
+    document.getElementById('culprit').classList.add(culpritCorrect ? 'correct' : 'wrong');
+
+    if (cipherCorrect && culpritCorrect) {
+      solved = true;
+      points = calcPoints();
+      clearInterval(timerInterval);
+      running = false;
+      finalTime = formatTime(totalSeconds);
+      document.getElementById('scoreTime').textContent = finalTime;
+      updateScoreboard();
+      showFeedback(
+        `🎉 <strong>TEBRİKLER DEDEKTIF!</strong><br>` +
+        `Şifre <strong>2-3-2-3</strong> ve suçlu <strong>Müze Müdürü Handan</strong> doğru!<br>` +
+        `Kalan süre: ${finalTime} · Puan: <strong>${points}</strong>`,
+        'success'
+      );
+    } else if (attempts >= MAX_ATTEMPTS) {
+      showFeedback(
+        '❌ <strong>Haklar bitti.</strong> ' +
+        (cipherCorrect ? 'Şifre doğruydu! ' : 'Şifre yanlıştı. ') +
+        (culpritCorrect ? 'Suçluyu doğru buldun!' : 'Suçluyu bulamadın.') +
+        '<br>Aşağıda çözümü görebilirsin.',
+        'error'
+      );
+      document.getElementById('solutionWrap').style.display = 'block';
+      updateScoreboard();
+    } else {
+      let hint = '';
+      if (cipherCorrect && !culpritCorrect) hint = '✅ Şifre doğru! Ama suçlu kim?';
+      else if (!cipherCorrect && culpritCorrect) hint = '✅ Suçluyu buldun! Ama şifre tutmuyor...';
+      else {
+        const correct_count = digits.filter((d,i) => d === CORRECT_CIPHER[i]).length;
+        hint = `Şifrede ${correct_count}/4 hane doğru. Suçlu yanlış. ${MAX_ATTEMPTS - attempts} hakkın kaldı.`;
+      }
+      showFeedback('🔍 ' + hint, 'partial');
+      updateScoreboard();
+    }
+  });
+
+  // ── SOLUTION REVEAL ──
+  document.getElementById('btnReveal').addEventListener('click', () => {
+    const panel = document.getElementById('solutionPanel');
+    panel.classList.toggle('open');
+    document.getElementById('btnReveal').textContent =
+      panel.classList.contains('open')
+        ? '▲  Çözümü Gizle'
+        : '▼  Çözümü Göster (Vazgeçtim)';
+  });
+</script>
+</body>
+</html>
